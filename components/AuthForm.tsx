@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +24,7 @@ const authFormSchema = (type: FormType) => {
     return z.object({
         name: type === "sign-up" ? z.string().min(2).max(50) : z.string().optional(),
         email: z.string().email(),
-        password: z.string().min(8),
+        password: z.string().min(8), 
     })
 }
 
