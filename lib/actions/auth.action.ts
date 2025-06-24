@@ -1,6 +1,7 @@
 "use server";
 
 import { auth, db } from "@/firebase/admin";
+import { CollectionReference } from "firebase-admin/firestore";
 import { cookies } from "next/headers";
 
 // Session duration (1 week)
@@ -129,4 +130,49 @@ export async function getCurrentUser(): Promise<User | null> {
 export async function isAuthenticated() {
   const user = await getCurrentUser();
   return !!user;
+}
+
+export async function getInterviewsByUserId(userId:string): Promise<Interview[] | null> {
+  try {
+    const interviews = await db.collection('interviews').where('userId', '==', userId).orderBy('createdAt', 'desc').get();
+
+    return interviews.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Interview[];
+    
+    // Return the first interview or null if none found
+    
+  } catch (error) {
+    console.error("Error fetching interview from firebase db:", error);
+
+  }
+
+  
+}
+
+
+//feching the interviews by other users
+export async function getLatestInterviews(params: GetLatestInterviewsParams): Promise<Interview[] | null> {
+
+  try {
+
+    const { userId, limit = 20 }: GetLatestInterviewsParams = params;
+
+    const interviews = await db.collection('interviews').orderBy('createdAt', 'desc').where('finalized', '==', 'true').where('userId', '!=', userId)
+    .limit(limit).get();
+
+    return interviews.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Interview[];
+    
+    // Return the first interview or null if none found
+    
+  } catch (error) {
+    console.error("Error fetching interview from firebase db:", error);
+
+  }
+
+  
 }
