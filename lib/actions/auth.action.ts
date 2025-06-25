@@ -132,47 +132,76 @@ export async function isAuthenticated() {
   return !!user;
 }
 
-export async function getInterviewsByUserId(userId:string): Promise<Interview[] | null> {
-  try {
-    const interviews = await db.collection('interviews').where('userId', '==', userId).orderBy('createdAt', 'desc').get();
+// export async function getInterviewsByUserId(userId:string): Promise<Interview[] | null | undefined> {
+  
+//     const interviews = await db.collection("interviews").where('userId', '==', userId).orderBy('createdAt', 'desc').get();
 
-    return interviews.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    })) as Interview[];
+//     return interviews.docs.map((doc) => ({
+//       id: doc.id,
+//       ...doc.data()
+//     })) as Interview[];
     
-    // Return the first interview or null if none found
+//     // Return the first interview or null if none found
     
-  } catch (error) {
-    console.error("Error fetching interview from firebase db:", error);
-
-  }
+  
 
   
+// }
+
+
+export async function getInterviewsByUserId(
+  userId: string
+): Promise<Interview[] | null> {
+  const interviews = await db
+    .collection("interviews")
+    .where("userId", "==", userId)
+    .orderBy("createdAt", "desc")
+    .get();
+
+  return interviews.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as Interview[];
 }
 
 
-//feching the interviews by other users
-export async function getLatestInterviews(params: GetLatestInterviewsParams): Promise<Interview[] | null> {
-
-  try {
-
-    const { userId, limit = 20 }: GetLatestInterviewsParams = params;
-
-    const interviews = await db.collection('interviews').orderBy('createdAt', 'desc').where('finalized', '==', 'true').where('userId', '!=', userId)
-    .limit(limit).get();
-
-    return interviews.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    })) as Interview[];
-    
-    // Return the first interview or null if none found
-    
-  } catch (error) {
-    console.error("Error fetching interview from firebase db:", error);
-
-  }
+// //feching the interviews by other users
+// export async function getLatestInterviews(params: GetLatestInterviewsParams): Promise<Interview[] | null | undefined> {
 
   
+
+//     const { userId, limit = 20 }: GetLatestInterviewsParams = params;
+
+//     const interviews = await db.collection('interviews').orderBy('createdAt', 'desc').where('finalized', '==', 'true').where('userId', '!=', userId)
+//     .limit(limit).get();
+
+//     return interviews.docs.map((doc) => ({
+//       id: doc.id,
+//       ...doc.data()
+//     })) as Interview[];
+    
+//     // Return the first interview or null if none found
+    
+ 
+
+  
+// }
+
+export async function getLatestInterviews(
+  params: GetLatestInterviewsParams
+): Promise<Interview[] | null> {
+  const { userId, limit = 20 } = params;
+
+  const interviews = await db
+    .collection("interviews")
+    .orderBy("createdAt", "desc")
+    .where("finalized", "==", true)
+    .where("userId", "!=", userId)
+    .limit(limit)
+    .get();
+
+  return interviews.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as Interview[];
 }

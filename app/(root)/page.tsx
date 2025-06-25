@@ -19,8 +19,8 @@ const page = async() => {
     getLatestInterviews({ userId: user?.id! })
   ]);
 
-  const hasPastInterviews = userInterviews?.length > 0;
-  const hasUpcomingInterviews = latestInterviews?.length > 0;
+  const hasPastInterviews = userInterviews?.length! > 0;
+  const hasUpcomingInterviews = latestInterviews?.length! > 0;
 
   return (
     <>
@@ -46,7 +46,17 @@ const page = async() => {
 
           {
             hasPastInterviews ? (
-              userInterviews?.map((interview) => (<InterviewCard {... interview} key={interview.id}></InterviewCard>))
+              userInterviews?.map((interview) => (
+                <InterviewCard
+                key={interview.id}
+                userId={user?.id}
+                interviewId={interview.id}
+                role={interview.role}
+                type={interview.type}
+                techstack={interview.techstack}
+                createdAt={interview.createdAt}
+              />
+              ))
             ) : (
               <p>You haven't taken any interviews yet</p>
             )
@@ -65,7 +75,17 @@ const page = async() => {
 
           {
             hasUpcomingInterviews ? (
-              latestInterviews?.map((interview) => (<InterviewCard {... interview} key={interview.id}></InterviewCard>))
+              latestInterviews?.map((interview) => (
+                <InterviewCard
+                key={interview.id}
+                userId={user?.id}
+                interviewId={interview.id}
+                role={interview.role}
+                type={interview.type}
+                techstack={interview.techstack}
+                createdAt={interview.createdAt}
+              />
+              ))
             ) : (
               <p>There is no new interviews available</p>
             )
