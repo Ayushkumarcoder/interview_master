@@ -8,6 +8,7 @@ import React from 'react'
 const page = async() => {
 
   const user = await getCurrentUser();
+  console.log("Current User:", user);
 
   //this is one way to fetch both the data
   // const userInterviews = await getInterviewsByUserId(user?.id!);
@@ -18,6 +19,9 @@ const page = async() => {
     getInterviewsByUserId(user?.id!),
     getLatestInterviews({ userId: user?.id! })
   ]);
+
+
+
 
   const hasPastInterviews = userInterviews?.length! > 0;
   const hasUpcomingInterviews = latestInterviews?.length! > 0;
@@ -45,19 +49,16 @@ const page = async() => {
           {/* <p>You haven't taken any interviews yet</p> */}
 
           {
+            !user?.id ? (
+              <>
+                {console.error("User ID is undefined")}
+                <h1>Error: User not found</h1>
+              </>
+            ) : 
+
             hasPastInterviews ? (
-              userInterviews?.map((interview) => (
-                <InterviewCard
-                key={interview.id}
-                userId={user?.id}
-                interviewId={interview.id}
-                role={interview.role}
-                type={interview.type}
-                techstack={interview.techstack}
-                createdAt={interview.createdAt}
-              />
-              ))
-            ) : (
+              userInterviews?.map((interview) => (<InterviewCard {... interview} key={interview.id}></InterviewCard>)))
+            : (
               <p>You haven't taken any interviews yet</p>
             )
           }
@@ -75,17 +76,7 @@ const page = async() => {
 
           {
             hasUpcomingInterviews ? (
-              latestInterviews?.map((interview) => (
-                <InterviewCard
-                key={interview.id}
-                userId={user?.id}
-                interviewId={interview.id}
-                role={interview.role}
-                type={interview.type}
-                techstack={interview.techstack}
-                createdAt={interview.createdAt}
-              />
-              ))
+              latestInterviews?.map((interview) => (<InterviewCard {... interview} key={interview.id}></InterviewCard>))
             ) : (
               <p>There is no new interviews available</p>
             )

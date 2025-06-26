@@ -1,6 +1,7 @@
 import { interviewCovers, mappings } from "@/constants";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+ 
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -22,8 +23,9 @@ const checkIconExists = async (url: string) => {
   }
 };
 
-export const getTechLogos = async (techArray: string[]) => {
-  const logoURLs = techArray.map((tech) => {
+export const getTechLogos = async (techArray: string[] | string | undefined) => {
+  
+  const logoURLs = (Array.isArray(techArray) ? techArray : techArray ? [techArray] : []).map((tech) => {
     const normalized = normalizeTechName(tech);
     return {
       tech,
