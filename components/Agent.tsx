@@ -1,10 +1,10 @@
-'use client';
+"use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { set } from "zod";
-import {vapi} from "@/lib/vapi.sdk";
+import { vapi } from "@/lib/vapi.sdk";
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -19,7 +19,6 @@ interface SavedMessage {
 }
 
 const Agent = ({ userName, userId, type }: AgentProps) => {
-
   const router = useRouter();
 
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -37,67 +36,71 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
 
   const lastMessage = messages[messages.length - 1];
 
-  useEffect(()=>{
-    const onCallStart = ()=> setCallStatus(CallStatus.ACTIVE);
-    const onCallEnd = ()=> setCallStatus(CallStatus.FINISHED);
+  useEffect(() => {
+    const onCallStart = () => setCallStatus(CallStatus.ACTIVE);
+    const onCallEnd = () => setCallStatus(CallStatus.FINISHED);
 
     const onMessage = (message: Message) => {
-      if(message.type === "transcript" && message.transcriptType === "final") {
-        const newMessage = {role: message.role, content: message.transcript};
+      if (message.type === "transcript" && message.transcriptType === "final") {
+        const newMessage = { role: message.role, content: message.transcript };
         setMessages((prev) => [...prev, newMessage]);
       }
-
-    }
+    };
 
     const onSpeechStart = () => setIsSpeaking(true);
     const onSpeechEnd = () => setIsSpeaking(false);
 
     const onError = (error: Error) => console.log("Error in call:", error);
 
-    vapi.on('call-start', onCallStart);
-    vapi.on('call-end', onCallEnd);
-    vapi.on('message', onMessage);
-    vapi.on('speech-start', onSpeechStart);
-    vapi.on('speech-end', onSpeechEnd);
-    vapi.on('error', onError);
+    vapi.on("call-start", onCallStart);
+    vapi.on("call-end", onCallEnd);
+    vapi.on("message", onMessage);
+    vapi.on("speech-start", onSpeechStart);
+    vapi.on("speech-end", onSpeechEnd);
+    vapi.on("error", onError);
 
-    return () =>{
-      vapi.off('call-start', onCallStart);
-      vapi.off('call-end', onCallEnd);
-      vapi.off('message', onMessage);
-      vapi.off('speech-start', onSpeechStart);
-      vapi.off('speech-end', onSpeechEnd);
-      vapi.off('error', onError);
+    return () => {
+      vapi.off("call-start", onCallStart);
+      vapi.off("call-end", onCallEnd);
+      vapi.off("message", onMessage);
+      vapi.off("speech-start", onSpeechStart);
+      vapi.off("speech-end", onSpeechEnd);
+      vapi.off("error", onError);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (callStatus === CallStatus.FINISHED) {
+      router.push("/");
     }
+  }, [messages, callStatus, userId, type]);
 
-  },[])
-
-  useEffect(()=>{
-    if(callStatus === CallStatus.FINISHED){
-      router.push('/');
-    }
-  },[messages, callStatus, userId, type]);
-
-  const handleCall = async()=>{
+  const handleCall = async () => {
     setCallStatus(CallStatus.CONNECTING);
 
-    await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
+    const workflowId = process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID;
+    if (!workflowId) {
+      console.error("VAPI_WORKFLOW_ID is missing");
+      alert("Interview Assistant is not configured properly.");
+      return;
+    }
+
+    await vapi.start(workflowId!, {
       variableValues: {
         username: userName,
         userid: userId,
-        
-      }
-    })
-  }
+      },
+    });
+  };
 
-  const latestMessage = messages[messages.length - 1]?.content ;
-  const isCallInactiveOrFinished = callStatus === CallStatus.INACTIVE || callStatus === CallStatus.FINISHED;
-
+  const latestMessage = messages[messages.length - 1]?.content;
+  const isCallInactiveOrFinished =
+    callStatus === CallStatus.INACTIVE || callStatus === CallStatus.FINISHED;
 
   const handleDisconnect = async () => {
     setCallStatus(CallStatus.FINISHED);
     vapi.stop();
-  }
+  };
 
   return (
     <>
@@ -162,7 +165,9 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
             </span>
           </button>
         ) : (
-          <button className="btn-disconnect" onClick={handleDisconnect}>End</button>
+          <button className="btn-disconnect" onClick={handleDisconnect}>
+            End
+          </button>
         )}
       </div>
     </>
