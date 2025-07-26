@@ -63,11 +63,15 @@ import { google } from "@ai-sdk/google";
 
 import { db } from "@/firebase/admin";
 import { getRandomInterviewCover } from "@/lib/utils";
+import { getCurrentUser } from "@/lib/actions/auth.action";
+
+
 
 export async function POST(request: Request) {
-  const { type, role, level, techstack, amount, userid } = await request.json();
+  const { type, role, level, techstack, amount} = await request.json();
 
   try {
+    const user = await getCurrentUser();
 
     const cleanedTechstack = techstack ? techstack.trim() : "";
     const techStackArray = cleanedTechstack
@@ -91,20 +95,22 @@ export async function POST(request: Request) {
     `,
     });
 
+    
+
     const interview = {
       role: role,
       type: type,
       level: level,
       techstack: techStackArray,
       questions: JSON.parse(questions),
-      userId: userid,
+      userId: user?.id, // Use user ID from session or request
       finalized: true,
       coverImage: getRandomInterviewCover(),
       createdAt: new Date().toISOString(),
     };
 
     await db.collection("interviews").add(interview);
-
+    console.log("Interviw db userID: ",user?.id);
     return Response.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error("Error:", error);

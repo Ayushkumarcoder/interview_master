@@ -88,7 +88,7 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
     await vapi.start(workflowId!, {
       variableValues: {
         username: userName,
-        userid: userId,
+        
       },
     });
   };

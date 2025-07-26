@@ -14,10 +14,10 @@ const page = async() => {
   // const userInterviews = await getInterviewsByUserId(user?.id!);
   // const latestInterview = await getLatestInterviews({ userId: user?.id! });
 
-  // a more faster way to fetch both simultanously
+  // a more faster way to fetch both simultaneously
   const [userInterviews, latestInterviews] = await Promise.all([
     getInterviewsByUserId(user?.id!),
-    getLatestInterviews({ userId: user?.id! })
+    getLatestInterviews({ userId: user?.id! }),
   ]);
 
 
